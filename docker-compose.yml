@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  plaid-pgdb:
+    image: postgres:14-alpine
+    container_name: ${PG_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - "5432:5432"
+    volumes:
+      - plaid-db:/var/lib/postgresql/data
+      - ./database/init/create.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    restart: always
+volumes:
+  plaid-db:
