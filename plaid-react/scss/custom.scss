@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+
+// @import "../node_modules/bootstrap/scss/bootstrap";
+
+@import "../node_modules/bootstrap/scss/functions"; // Required
+
+$font-family-monospace: 'IBM Plex Mono', SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-family-base: $font-family-monospace;
+$body-font-family: $font-family-monospace;
+$input-btn-font-size: 1.25rem;
+
+$font-sizes: (
+    1: 5rem,
+    2: 4.5rem,
+    3: 4rem,
+    4: 3.5rem,
+    5: 3rem,
+    6: 2.5rem
+);
+
+$h1-font-size: 5rem;
+$h2-font-size: 4.5rem;
+$h3-font-size: 4rem;
+$h4-font-size: 3.5rem;
+$h5-font-size: 3rem;
+$h6-font-size: 2.5rem;
+
+@import "../node_modules/bootstrap/scss/variables"; // Required
+@import "../node_modules/bootstrap/scss/variables-dark"; // Required
+
+@import "../node_modules/bootstrap/scss/maps"; // Required
+@import "../node_modules/bootstrap/scss/mixins"; // Required
+@import "../node_modules/bootstrap/scss/root"; // Required
+
+@import "../node_modules/bootstrap/scss/reboot";
+@import "../node_modules/bootstrap/scss/buttons";
+@import "../node_modules/bootstrap/scss/type";
+@import "../node_modules/bootstrap/scss/containers";
+@import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/utilities";
+@import "../node_modules/bootstrap/scss/helpers";
+
+@import "../node_modules/bootstrap/scss/utilities/api";
+
+.btn-primary {
+    background-color: #000000;
+    border: none;
+    border-radius: .1rem;
+}
+.btn-remove {
+    border: 1px solid #000000;
+    color: #000000;
+    background-color: #ffffff;
+
+    &:hover {
+        color: #0b5ed7;
+        background-color: #ffffff;
+    }
+}
+
+body {
+    font-size: 1.25rem !important;
+}
+
+#banner-container {
+    border-bottom: 1px solid #000000;
+}
+
+.btn-container {
+    .bi.bi-chevron-down.active {
+        transform: rotate(180deg);
+    }
+}
+
+.card_container {
+    border: 1px solid #ededed;
+    border-radius: .2rem;
+    margin-bottom: 2.4rem;
+    box-shadow: 0 .2rem .4rem 0 rgba(17, 17, 17, .08);
+}
+
+.user-card-container {
+    padding: 2rem 4rem;
+    .user-card-headers {
+        &.col-9 {
+            gap: 4rem;
+        }
+        &.col-12 {
+            gap: 6rem;
+        }
+    }
+}
+
+.user-page-container-section {
+    margin-top: 5.6rem;
+    
+}
+
+.landing-page-container-section,
+.item-cards-container  {
+    margin-top: 2.4rem;
+}
+
+.spending-insights-container__column_container {
+    border: 1px solid #ededed;
+
+    // .spending-insights-top-vendor-container {
+
+    // }
+} 
+
+.item-card {
+    background-color: #f6f6f6;
+    border: 1px solid #ededed;
+    border-radius: .2rem;
+    box-shadow: 0 .2rem .4rem 0 rgba(17, 17, 17, .08);
+    margin-bottom: 2.4rem;
+
+    .item-card__header,
+    .account-card {
+        border-bottom: 1px solid #ededed;
+        
+    }
+
+    .item-card__header {
+        padding: 2rem;
+        .item-card-arrow {
+            bottom: .6rem;
+        }
+    }
+
+    &.expanded {
+        .item-card-arrow svg {
+            transform: rotate(180deg);
+        }
+    }
+
+    .account-card {
+        .account-details-container,
+        .transaction-card {
+            padding: 1rem 2rem;
+        }
+        .transaction-card {
+            border-top: 1px solid #ededed;
+            font-size: 1rem;
+
+            .transaction-column {
+                padding-right: 2rem;
+            }
+        }
+        .account-card__details__type-amount__amount {
+            font-size: 1rem;
+            &:before {
+                content: "\00B7";
+                font-size: 1.6rem;
+                font-weight: bold;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+    }
+
+    .item-card__transaction-list {
+        background-color: #ffffff;
+    }
+
+
+}
