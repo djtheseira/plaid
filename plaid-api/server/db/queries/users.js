@@ -79,6 +79,15 @@ const getUserList = async () => {
     return users;
 }
 
+const getItemsAndAccessTokensForUser = async (userId) => {
+    const query = {
+        text: "SELECT id, plaid_access_token FROM items WHERE user_id = $1;",
+        values: [userId]
+    };
+    const { rows } = await db.query(query);
+    return rows;
+}
+
 module.exports = {
     createUser, 
     deleteUser,
@@ -89,4 +98,5 @@ module.exports = {
     getFirstUser,
     getUserCount,
     getUserList,
+    getItemsAndAccessTokensForUser,
 }
