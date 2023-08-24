@@ -2,8 +2,7 @@ import axios from "axios";
 import React from "react";
 import { toast } from "react-toastify";
 import { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
-
-// import duplicateditemtoastmessage
+import { DuplicateItemToastMessage } from "../components";
 
 const baseURL = "http://localhost:8000/api";
 
@@ -45,9 +44,9 @@ export const getAccountBalanceByItem = (itemId: number) => api.get(`/banks/${ite
 export const getAccountBalancesByUserId = (userId: number) => api.get(`/users/${userId}/accounts/totals`);
 
 // transactions
-// THIS DONT EXIST! !!!! !!!! !!!
-export const getTransactionsByAccount = (accountId: number) => api.get(`/banks/${accountId}/transactions`);
-export const getTransactionsByItem = (itemId: number) => api.get(`/banks/${itemId}/transactions`);
+// THIS DOESNT EXIST! !!!! !!!! !!!
+export const getTransactionsByAccount = (accountId: number) => api.get(`/banks/accounts/${accountId}/transactions`);
+export const getTransactionsByItem = (itemId: number) => api.get(`/banks/items/${itemId}/transactions`);
 export const getTransactionsByUser = (userId: number) => api.get(`/users/${userId}/transactions`);
 export const getSumOfTransactionsByUser = (userId: number) => api.get(`/users/${userId}/sum_of_transactions`);
 export const getMonthlySumOfTransactionsByUser = (userId: number) => api.get(`/users/${userId}/sum_of_transactions/monthly`);
@@ -77,7 +76,10 @@ export const exchangeToken = async (
     } catch (err:any) {
         const { response } = (err);
         if (response && response.status === 409) {
-            
+            console.log("hello");
+            toast.error(
+                <DuplicateItemToastMessage institutionName={institution.name} />
+            );
         } else {
             toast.error(`Error linking ${institution.name}`);
         }
