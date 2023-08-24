@@ -19,8 +19,8 @@ export default function SpendingInsights(props: Props) {
 
     const generateHSLColor = () => {
         const h = Math.floor(Math.random() * 360),
-            s = Math.floor(Math.random() * 80 + 20) + '%',
-            l = Math.floor(Math.random() * 50 + 20) + '%';
+            s = Math.floor(Math.random() * 80 + 30) + '%',
+            l = Math.floor(Math.random() * 60 + 20) + '%';
         return `hsl(${h},${s},${l})`;
     }
 
@@ -42,8 +42,8 @@ export default function SpendingInsights(props: Props) {
             id: 1,
             label: '$',
             data: props.transactionSums.map((trx: TransactionSumType) => trx.sum),
-            backgroundColor: backgroundColors,
-            borderColor: borderColors
+            // backgroundColor: backgroundColors,
+            // borderColor: "#fff"
         }],
         plugins: [ChartDataLabels]
     };
