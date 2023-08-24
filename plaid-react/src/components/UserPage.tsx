@@ -27,6 +27,7 @@ export default function UserPage({ match }: RouteComponentProps<RouteInfo>) {
         created_at: "",
         updated_at: "",
     })
+    const [isLoading, setIsLoading] = useState(false);
     const [items, setItems] = useState<ItemType[]>([]);
     const [token, setToken] = useState("");
     const [numOfItems, setNumOfItems] = useState(0);
