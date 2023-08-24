@@ -11,10 +11,9 @@ const createTransaction = async (
     transactionCategoryType,
     transactionCategory,
     merchantName,
-    transactionDate,
-    transactionAuthorizedDate
+    transactionDate
 ) => {
-    const { id: accountId } = await getAccountsByPlaidAccountId(plaidAccountId)
+    const { id: accountId } = await getAccountsByPlaidAccountId(plaidAccountId);
     const query = {
         text: `
             INSERT INTO transactions_table(
@@ -35,10 +34,17 @@ const createTransaction = async (
             RETURNING *;
         `,
         values: [
-            transactionId, accountId, amount, isRemoved, isPending,
-            isoCurrencyCode, transactionCategoryType, transactionCategory, merchantName,
-            transactionDate
-        ]
+            transactionId,
+            accountId,
+            amount,
+            isRemoved,
+            isPending,
+            isoCurrencyCode,
+            transactionCategoryType,
+            transactionCategory,
+            merchantName,
+            transactionDate,
+        ],
     };
     const { rows: transactions } = await db.query(query);
     return transactions[0];
@@ -75,25 +81,101 @@ const updateTransaction = async (
             transactionCategory,
             merchantName,
             transactionDate,
-        ]
+        ],
     };
     const { rows: transactions } = await db.query(query);
     return transactions[0];
 };
 
+/**
+ * Creates or updates multiple transactions.
+ *
+ * @param {Object[]} transactions an array of transactions.
+ */
+const createOrUpdateTransactions = async (transactions) => {
+    const pendingQueries = transactions.map(async (transaction) => {
+        const {
+            account_id: plaidAccountId,
+            transaction_id: plaidTransactionId,
+            category: categories,
+            name: transactionName,
+            amount,
+            iso_currency_code: isoCurrencyCode,
+            date: transactionDate,
+            pending,
+        } = transaction;
+        const { id: accountId } = await getAccountsByPlaidAccountId(
+            plaidAccountId
+        );
+        console.log(categories);
+        const [category, subcategory] = categories;
+        try {
+            const query = {
+                text: `
+                    INSERT INTO transactions_table
+                    (
+                        account_id,
+                        plaid_transaction_id,
+                        category_type,
+                        category,
+                        merchant_name,
+                        amount,
+                        iso_currency_code,
+                        transaction_date,
+                        is_pending,
+                        is_removed
+                    )
+                    VALUES
+                    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    ON CONFLICT (plaid_transaction_id) DO UPDATE 
+                    SET 
+                        category_type = EXCLUDED.category_type,
+                        category = EXCLUDED.category,
+                        merchant_name = EXCLUDED.merchant_name,
+                        amount = EXCLUDED.amount,
+                        iso_currency_code = EXCLUDED.iso_currency_code,
+                        transaction_date = EXCLUDED.transaction_date,
+                        is_pending = EXCLUDED.is_pending,
+                        is_removed = EXCLUDED.is_removed;
+                `,
+                values: [
+                    accountId,
+                    plaidTransactionId,
+                    category,
+                    subcategory,
+                    transactionName,
+                    amount,
+                    isoCurrencyCode,
+                    transactionDate,
+                    pending,
+                    false,
+                ],
+            };
+            await db.query(query);
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    await Promise.all(pendingQueries);
+};
+
 const setTransactionAsRemoved = async (transactionId) => {
     const query = {
-        text: "UPDATE transactions SET is_removed = true WHERE plaid_transaction_id = $1 RETURNING *;",
-        values: [transactionId]
-    }
+        text: "UPDATE transactions_table SET is_removed = true WHERE plaid_transaction_id = $1 RETURNING *;",
+        values: [transactionId],
+    };
 
     const { rows: transactions } = await db.query(query);
     return transactions[0];
-}
+};
 
 // TODO:: USE CURSOR?
-const getTransactionsByAccountId = async (accountId, limit = -1, offset = 0) => {
-    let query = {};
+const getTransactionsByAccountId = async (
+    accountId,
+    limit = -1,
+    offset = 0
+) => {
+    const query = {};
     if (limit > -1 && offset > -1) {
         query.text = `
             SELECT t.*
@@ -118,13 +200,17 @@ const getTransactionsByAccountId = async (accountId, limit = -1, offset = 0) => 
 const getTransactionByTransactionId = async (transactionId) => {
     const query = {
         text: "SELECT * FROM transactions WHERE id = $1;",
-        values: [transactionId]
-    }
+        values: [transactionId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions[0];
 };
 
-const getTransactionsByUserIdSortedByCategory = async (userId, useDateFilter, dateFilterInterval) => {
+const getTransactionsByUserIdSortedByCategory = async (
+    userId,
+    useDateFilter,
+    dateFilterInterval
+) => {
     const query = {
         text: `
             SELECT id, plaid_account_id, category_type, 
@@ -134,14 +220,18 @@ const getTransactionsByUserIdSortedByCategory = async (userId, useDateFilter, da
             WHERE user_id = $1
             AND is_removed = false
             AND is_pending = false
-            ${useDateFilter ? "AND transaction_date > (current_date - interval '1 " + dateFilterInterval + "')" : ""}
+            ${
+                useDateFilter
+                    ? `AND transaction_date > (current_date - interval '1 ${dateFilterInterval}')`
+                    : ""
+            }
             ORDER BY category_type, 4, transaction_date;
         `,
-        values: [userId]
-    }
+        values: [userId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 const getTransactionsByItemIdSortedByCategory = async (itemId) => {
     const query = {
@@ -153,13 +243,14 @@ const getTransactionsByItemIdSortedByCategory = async (itemId) => {
             WHERE t.item_id = $1
             AND is_removed = false
             AND is_pending = false
+            AND transaction_date > (current_date - interval '1 month')
             ORDER BY category_type, 4, transaction_date;
         `,
-        values: [userId]
-    }
+        values: [itemId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 const getTransactionsByAccountIdSortedByCategory = async (accountId) => {
     const query = {
@@ -173,13 +264,17 @@ const getTransactionsByAccountIdSortedByCategory = async (accountId) => {
             AND is_pending = false
             ORDER BY category_type, 4, transaction_date;
         `,
-        values: [accountId]
-    }
+        values: [accountId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
-const getSumOfCategoryTransactionsByUserId = async (userId, useDateFilter, dateFilterInterval) => {
+const getSumOfCategoryTransactionsByUserId = async (
+    userId,
+    useDateFilter,
+    dateFilterInterval
+) => {
     const query = {
         text: `
             SELECT SUM(amount), category_type
@@ -187,14 +282,18 @@ const getSumOfCategoryTransactionsByUserId = async (userId, useDateFilter, dateF
             WHERE user_id = $1
             AND is_removed = false
             AND is_pending = false
-            ${useDateFilter ? "AND transaction_date > (current_date - interval '1 " + dateFilterInterval + "')" : ""}
+            ${
+                useDateFilter
+                    ? `AND transaction_date > (current_date - interval '1 ${dateFilterInterval}')`
+                    : ""
+            }
             GROUP BY category_type;
         `,
-        values: [userId]
-    }
+        values: [userId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 const getSumOfCategoryTransactionsByItemId = async (itemId) => {
     const query = {
@@ -207,11 +306,11 @@ const getSumOfCategoryTransactionsByItemId = async (itemId) => {
             AND is_pending = false
             GROUP BY category_type, category;
         `,
-        values: [itemId]
-    }
+        values: [itemId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 const getSumOfCategoryTransactionsByAccountId = async (accountId) => {
     const query = {
@@ -224,11 +323,11 @@ const getSumOfCategoryTransactionsByAccountId = async (accountId) => {
             AND is_pending = false
             GROUP BY category_type, category;
         `,
-        values: [accountId]
-    }
+        values: [accountId],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 const getTopVendorNamesByUserId = async (userId, limit = 5) => {
     const query = {
@@ -244,15 +343,16 @@ const getTopVendorNamesByUserId = async (userId, limit = 5) => {
             ORDER BY sum desc, merchant_name
             LIMIT $2;
         `,
-        values: [userId, limit]
-    }
+        values: [userId, limit],
+    };
     const { rows: transactions } = await db.query(query);
     return transactions;
-}
+};
 
 module.exports = {
     createTransaction,
     updateTransaction,
+    createOrUpdateTransactions,
     setTransactionAsRemoved,
     getTransactionByTransactionId,
     getTransactionsByAccountId,
