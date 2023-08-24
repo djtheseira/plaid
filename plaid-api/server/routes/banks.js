@@ -1,7 +1,7 @@
 const express = require("express");
 const escape = require("escape-html");
 const { plaidClient } = require("../../plaid");
-const { getInstitutionNamesByUserId, updateItemStatus, getItemById, getAccountsByItemId, getSumOfAccountsByUserId, getSumOfAccountsByItemId, getBanksAccountsByUserId, getItemByInstitutionId, deleteItem, getTransactionsByAccountId } = require("../db/queries");
+const { getInstitutionNamesByUserId, updateItemStatus, getItemById, getAccountsByItemId, getSumOfAccountsByUserId, getSumOfAccountsByItemId, getBanksAccountsByUserId, getItemByInstitutionId, deleteItem, getTransactionsByAccountId, getTransactionsByItemIdSortedByCategory } = require("../db/queries");
 const { getLoggedInUserId, isValidItemStatus, validItemStatuses, sanitizeItems, sanitizeAccounts } = require("../../util");
 
 const router = express.Router();
@@ -114,10 +114,20 @@ router.get("/:itemId/accounts/totals", async (request, response, next) => {
     }
 });
 
-router.get("/:accountId/transactions", async (request, response, next) => {
+router.get("/accounts/:accountId/transactions", async (request, response, next) => {
     try {
         const { accountId } = request.params;
         const transactions = await getTransactionsByAccountId(accountId);
+        response.json(transactions);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/items/:itemId/transactions", async (request, response, next) => {
+    try {
+        const { itemId } = request.params;
+        const transactions = await getTransactionsByItemIdSortedByCategory(itemId);
         response.json(transactions);
     } catch (err) {
         next(err);
