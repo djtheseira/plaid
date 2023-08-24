@@ -2,17 +2,26 @@ const express = require("express");
 const escape = require("escape-html");
 const { plaidClient } = require("../../plaid");
 
-const { getUserByUserId, createItem, createAccount, getItemByInstitutionId } = require("../db/queries");
+const {
+    getUserByUserId,
+    createItem,
+    createAccount,
+    getItemByInstitutionId,
+} = require("../db/queries");
 const { getLoggedInUserId, prettyPrintResponse } = require("../../util");
-const { syncTransactions } = require("./transactions");
+const updateTransactions = require("../../update_transactions");
 
 const router = express.Router();
 
+// WEBHOOK TEST lt --port 8000 --subdomain slow-friends-clap 
 router.post("/generate_link_token", async (request, response, next) => {
     Promise.resolve()
         .then(async function () {
-            const { id: userId } = await getUserByUserId(getLoggedInUserId(request));
+            const { id: userId } = await getUserByUserId(
+                getLoggedInUserId(request)
+            );
             console.log("userid:", userId);
+            
             const configs = {
                 user: {
                     client_user_id: JSON.stringify(userId),
@@ -20,15 +29,19 @@ router.post("/generate_link_token", async (request, response, next) => {
                 client_name: "DT's Budgeting",
                 products: process.env.PLAID_PRODUCTS.split(","),
                 country_codes: process.env.PLAID_COUNTRY_CODES.split(","),
-                language: 'en',
-                redirect_uri: process.env.PLAID_REDIRECT_URI
+                language: "en",
+                redirect_uri: process.env.PLAID_REDIRECT_URI,
+                webhook: "https://slow-friends-clap.loca.lt/api/services/webhook"
             };
 
-            const createTokenResponse = await plaidClient.linkTokenCreate(configs);
+            const createTokenResponse = await plaidClient.linkTokenCreate(
+                configs
+            );
 
             prettyPrintResponse(createTokenResponse);
             response.json(createTokenResponse.data);
-        }).catch(function (err) {
+        })
+        .catch(function (err) {
             if (err.response != null && err.response.data != null) {
                 console.log(err.response.data);
             } else {
@@ -41,28 +54,47 @@ router.post("/generate_link_token", async (request, response, next) => {
 
 router.post("/exchange_public_token", async (request, response, next) => {
     try {
-        const {publicToken, institutionId, userId, accounts } = request.body;
+        const { publicToken, institutionId, userId, accounts } = request.body;
         const tokenResponse = await plaidClient.itemPublicTokenExchange({
-            public_token: escape(publicToken)
+            public_token: escape(publicToken),
         });
         prettyPrintResponse(tokenResponse);
         const accessToken = tokenResponse.data.access_token;
         const plaidItemId = tokenResponse.data.item_id;
         const institutionInfo = await retrieveBankInformation(accessToken);
-        const existingItem = await getItemByInstitutionId(userId, institutionId);
+        const existingItem = await getItemByInstitutionId(
+            userId,
+            institutionId
+        );
         if (existingItem) {
-            response.json({error_message: "You have already linked an item at this institution."}).status(409);
+            response
+                .json({
+                    error_message:
+                        "You have already linked an item at this institution.",
+                })
+                .status(409);
         }
         console.log("exchange token accounts: ", accounts);
-        const item = await createItem(plaidItemId, userId, accessToken, institutionId, institutionInfo.institutionName);
+        const item = await createItem(
+            plaidItemId,
+            userId,
+            accessToken,
+            institutionId,
+            institutionInfo.institutionName
+        );
         await retrieveBankAccountNames(accessToken, item.id);
-        await syncTransactions(item.id);
+
+        await updateTransactions(plaidItemId).then(() => {
+            // Notify frontend to reflect any transactions changes.
+            console.log("update trans done");
+            request.io.emit("NEW_TRANSACTIONS_DATA", { itemId: item.id });
+        });
 
         response.json({
-            status: "success"
+            status: "success",
         });
     } catch (err) {
-        await (err);
+        await err;
         if (err.response && err.response.data) {
             prettyPrintResponse(err.response);
             response.json(err);
@@ -76,7 +108,7 @@ router.post("/exchange_public_token", async (request, response, next) => {
 const retrieveBankInformation = async (accessToken) => {
     try {
         const itemResponse = await plaidClient.itemGet({
-            access_token: accessToken
+            access_token: accessToken,
         });
 
         let institutionId = itemResponse.data.item.institution_id;
@@ -86,36 +118,36 @@ const retrieveBankInformation = async (accessToken) => {
 
         const institutionResponse = await plaidClient.institutionsGetById({
             country_codes: ["US"],
-            institution_id: institutionId
+            institution_id: institutionId,
         });
 
         let institutionName = institutionResponse.data.institution.name;
 
         return {
             institutionId: institutionId,
-            institutionName: institutionName
+            institutionName: institutionName,
         };
     } catch (err) {
-        await (err);
+        await err;
     }
 };
 
 const retrieveBankAccountNames = async (accessToken, itemId) => {
     try {
         const accountResponse = await plaidClient.accountsBalanceGet({
-            access_token: accessToken
+            access_token: accessToken,
         });
         const accountsData = accountResponse.data;
 
         await Promise.all(
             accountsData.accounts.map(async (account) => {
-                console.log("account: ", account);
+                // console.log("account: ", account);
                 await createAccount(itemId, account, account.balances);
             })
         );
     } catch (err) {
-        console.error(`Ran into an error ${await (err)}`);
+        console.error(`Ran into an error ${await err}`);
     }
-}
+};
 
 module.exports = router;
