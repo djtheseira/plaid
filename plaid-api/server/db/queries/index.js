@@ -29,6 +29,7 @@ const { createPlaidApiEvents } = require("./plaidApiEvents");
 const { 
     createTransaction,
     updateTransaction,
+    createOrUpdateTransactions,
     setTransactionAsRemoved,
     getTransactionByTransactionId,
     getTransactionsByAccountId,
@@ -51,6 +52,7 @@ const {
     getFirstUser,
     getUserCount,
     getUserList,
+    getItemsAndAccessTokensForUser,
 } = require("./users");
 
 module.exports = {
@@ -85,6 +87,7 @@ module.exports = {
     // Transactions
     createTransaction,
     updateTransaction,
+    createOrUpdateTransactions,
     setTransactionAsRemoved,
     getTransactionByTransactionId,
     getTransactionsByAccountId,
@@ -106,4 +109,5 @@ module.exports = {
     getFirstUser,
     getUserCount,
     getUserList,
+    getItemsAndAccessTokensForUser,
 }
