@@ -35,8 +35,12 @@ $h6-font-size: 2.5rem;
 @import "../node_modules/bootstrap/scss/reboot";
 @import "../node_modules/bootstrap/scss/buttons";
 @import "../node_modules/bootstrap/scss/type";
+@import "../node_modules/bootstrap/scss/dropdown";
 @import "../node_modules/bootstrap/scss/containers";
+@import "../node_modules/bootstrap/scss/forms";
 @import "../node_modules/bootstrap/scss/grid";
+@import "../node_modules/bootstrap/scss/nav";
+@import "../node_modules/bootstrap/scss/navbar";
 @import "../node_modules/bootstrap/scss/utilities";
 @import "../node_modules/bootstrap/scss/helpers";
 
@@ -163,6 +167,56 @@ body {
     .item-card__transaction-list {
         background-color: #ffffff;
     }
+}
+
+.user-page-budget-section {
+    .btn-container.expanded {
+        svg {
+            transform: rotate(180deg);
+        }
+    }
+
+    .budget-total {
+        border-top: 1px solid #000000;
+    }
+}
 
 
+#budget-setting-container {
+    #budget-category-select-dropdown {
+        max-height: 30vh;
+        overflow-y: auto;
+    }
+    #budget-settings-container {
+        border: 1px solid #ededed;
+        padding: 1rem 2rem;
+    }
+}
+
+.actual-budget-container {
+    .budget-sum-container .budget-sum-category-type {
+        border: 1px solid #ededed;
+        border-width: 0 0 1px 0;
+        padding: 1rem 0;
+    }
+    .actual-budget-container-header,
+    .actual-budget-container-cell {
+        padding: 1rem 2rem;
+        border: solid #ededed;
+    }
+
+    .actual-budget-container-header {
+        border-width: 1px 1px 1px 0;
+        &:first-child {
+            border-width: 1px;
+        }
+    }
+
+    .actual-budget-container-cell {
+        
+        border-width: 0px 1px 1px 0;
+        &:first-child {
+            border-width: 0px 1px 1px 1px;
+        }
+    }
 }
