@@ -44,6 +44,9 @@ const fetchTransactionUpdates = async (plaidItemId) => {
                 access_token: accessToken,
                 cursor: cursor,
                 count: batchSize,
+                options: {
+                    include_personal_finance_category: true,
+                },
             };
             const response = await plaidClient.transactionsSync(request);
             const data = response.data;
