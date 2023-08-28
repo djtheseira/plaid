@@ -10,6 +10,18 @@ const {
 } = require("./accounts");
 
 const {
+    getBudgetByUserId,
+    setBudgetForCategoryType,
+    getBudgetActualSumComparisons,
+    removeBudgetForCategoryId,
+} = require("./budget");
+
+const {
+    getBudgetCategoryTypes,
+    getBudgetCategories,
+} = require("./categories");
+
+const {
     createItem,
     deleteItem,
     updateItemStatus,
@@ -65,6 +77,16 @@ module.exports = {
     getSumOfAccountsByItemId,
     getSumOfAccountsByUserId,
     getBanksAccountsByUserId,
+
+    // Budget
+    getBudgetByUserId,
+    setBudgetForCategoryType,
+    getBudgetActualSumComparisons,
+    removeBudgetForCategoryId,
+
+    // Categories
+    getBudgetCategoryTypes,
+    getBudgetCategories,
 
     // Items
     createItem,
