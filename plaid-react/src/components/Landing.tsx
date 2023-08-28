@@ -3,7 +3,7 @@ import React, { SyntheticEvent, useCallback, useEffect } from "react";
 import { useCurrentUser, useUsers } from "../services";
 import { getUsersCount } from "../services/api";
 import { useBoolean } from "../hooks";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { 
     AddUserForm,
     Banner, 
@@ -15,7 +15,7 @@ export default function Landing() {
     const { userState, setCurrentUser} = useCurrentUser();
     const {usersById} = useUsers();
     const [isAdding, hideForm, toggleForm] = useBoolean(usersById != null && Object.keys(usersById).length > 0);
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getUserCount = async () => {
@@ -36,7 +36,7 @@ export default function Landing() {
     }, [setCurrentUser, userState.newUser]);
 
     const returnToCurrentUser = () => {
-        history.push(`/user/${userState.currentUser.id}`);
+        navigate(`/user/${userState.currentUser.id}`);
     }
 
 
