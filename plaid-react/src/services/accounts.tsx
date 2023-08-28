@@ -88,7 +88,6 @@ export const AccountsProvider: React.FC<{ children: ReactNode }> = (
      */
     const value = useMemo(() => {
         const allAccounts = Object.values(accountsById);
-        console.log("allAccounts: ", allAccounts);
         return {
             allAccounts,
             accountsById,
