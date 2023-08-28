@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { 
     PlaidLinkError, 
     PlaidLinkOnEventMetadata, 
@@ -23,7 +23,7 @@ interface Props {
 };
 
 export default function LaunchLink(props: Props) {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { getItemsByUser, getItemById } = useItems();
     const { generateLinkToken, deleteLinkToken } = useLink();
     const { setError, resetError } = useErrors();
@@ -42,7 +42,7 @@ export default function LaunchLink(props: Props) {
         }
         resetError();
         deleteLinkToken(props.userId, null);
-        history.push(`/user/${props.userId}`);
+        navigate(`/user/${props.userId}`);
     };
 
     const onExit = async (
