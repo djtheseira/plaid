@@ -1,10 +1,9 @@
 import React from "react";
-import { Route, Switch, withRouter } from "react-router-dom";
+import { Route, Routes, useRoutes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import { UserPage, Landing, OAuthLink, Sockets } from "./components";
-
+import { BudgetPage, UserPage, Landing, OAuthLink, Sockets, InfoPage } from "./components";
 import { AccountsProvider } from "./services/accounts";
 import { InstitutionsProvider } from "./services/institutions";
 import { ItemsProvider } from "./services/items";
@@ -13,11 +12,30 @@ import { TransactionProvider } from "./services/transactions";
 import { UsersProvider } from "./services/users";
 import { CurrentUserProvider } from "./services/currentUser";
 import { ErrorsProvider } from "./services/errors";
+import { BudgetProvider } from "./services/budget";
 
 
 import './App.css';
 
 function App() {
+    const mainRoutes = {
+        path: '/',
+        element: <Landing />,
+    }
+    const oAuthRoutes = {
+        path: "oauth-link", 
+        element: <OAuthLink />,
+    }
+    const userRoutes = {
+        path: "/user",
+        element: <UserPage />,
+        children: [
+            {path: ":userId", element: <InfoPage />},
+            {path: ":userId/budget", element: <BudgetPage />}
+        ],
+    }
+
+    const routing = useRoutes([mainRoutes, oAuthRoutes, userRoutes]);
     return (
         <div className="App">
             <ToastContainer
@@ -32,13 +50,16 @@ function App() {
                                 <ErrorsProvider>
                                     <UsersProvider>
                                         <CurrentUserProvider>
-                                            <Sockets/>
-                                            <Switch>
-                                                <Route exact path="/" component={Landing} />
-                                                <Route path="/user/:userId" component={UserPage} />
-                                                <Route path="/oauth-link" component={OAuthLink} />
-                                                <Route path="/admin" component={Landing} />
-                                            </Switch>
+                                            <BudgetProvider>
+                                                <Sockets/>
+                                                <>{routing}</>   
+                                                {/* <Routes>
+                                                    <Route path="/" element={<Landing />} />
+                                                    <Route path="/user/:userId" element={<UserPage/>} />
+                                                    <Route path="/user/:userId/budget" element={<BudgetPage/>} />
+                                                    <Route path="/oauth-link" element={<OAuthLink/>} />
+                                                </Routes> */}
+                                            </BudgetProvider>
                                         </CurrentUserProvider>
                                     </UsersProvider>
                                 </ErrorsProvider>
@@ -51,4 +72,4 @@ function App() {
     );
 }
 
-export default withRouter(App);
+export default App;
