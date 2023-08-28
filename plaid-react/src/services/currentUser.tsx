@@ -7,7 +7,7 @@ import React, {
     Dispatch,
   } from 'react';
   import { toast } from 'react-toastify';
-  import { useHistory } from 'react-router-dom';
+  import { useNavigate } from 'react-router-dom';
   import { getLoginUser as apiGetLoginUser } from './api';
   import { UserType } from '../components/types';
   import { CurrentUserState } from ".";
@@ -41,7 +41,7 @@ import React, {
    */
   export function CurrentUserProvider(props: any) {
     const [userState, dispatch] = useReducer(reducer, initialState);
-    const history = useHistory();
+    const navigate = useNavigate();
   
     /**
      * @desc Requests details for a single User.
@@ -53,7 +53,7 @@ import React, {
           if (payload != null) {
             toast.success(`Successful login.  Welcome back ${username}`);
             dispatch({ type: 'SUCCESSFUL_GET', payload: payload[0] });
-            history.push(`/user/${payload[0].id}`);
+            navigate(`/user/${payload[0].id}`);
           } else {
             toast.error(`Username ${username} is invalid.  Try again. `);
             dispatch({ type: 'FAILED_GET' });
@@ -62,7 +62,7 @@ import React, {
           console.log(err);
         }
       },
-      [history]
+      [navigate]
     );
   
     const setCurrentUser = useCallback(
@@ -71,7 +71,7 @@ import React, {
           const { data: payload } = await apiGetLoginUser(username);
           if (payload != null) {
             dispatch({ type: 'SUCCESSFUL_GET', payload: payload[0] });
-            history.push(`/user/${payload[0].id}`);
+            navigate(`/user/${payload[0].id}`);
           } else {
             dispatch({ type: 'FAILED_GET' });
           }
@@ -79,7 +79,7 @@ import React, {
           console.log(err);
         }
       },
-      [history]
+      [navigate]
     );
   
     const setNewUser = useCallback(async (username:string) => {
