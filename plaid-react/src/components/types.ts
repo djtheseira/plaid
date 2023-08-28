@@ -1,3 +1,30 @@
+export interface CategoryType {
+    id: number;
+    category_type: string;
+    created_at: string;
+}
+
+export interface Category {
+    category_id: number;
+    category_type_id: number;
+    category: string;
+    category_type: string;
+    created_at: string;
+}
+
+export interface BudgetType {
+    id: number;
+    user_id: number;
+    category_id: number;
+    category: string;
+    category_type_id: number;
+    category_type?: string;
+    allocated_amount: number;
+    created_at?: string;
+    updated_at?: string;
+    hide_locally: boolean;
+}
+
 export interface RouteInfo {
     userId: string;
 }
