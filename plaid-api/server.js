@@ -5,14 +5,19 @@ const express = require("express");
 const socketIo = require('socket.io');
 
 const { getUserCount } = require("./server/db/queries");
-const banksRouter = require("./server/routes/banks");
-const debugRouter = require("./server/routes/debug");
-const linkEventsRouter = require("./server/routes/linkEvents");
-const tokensRouter = require("./server/routes/tokens");
-const { router: transactionsRouter } = require("./server/routes/transactions");
-const usersRouter = require("./server/routes/users");
-const institutionRouter = require("./server/routes/institutions");
-const servicesRouter = require("./server/routes/services");
+
+const {
+    banksRouter,
+    budgetRouter,
+    categoriesRouter,
+    debugRouter,
+    institutionRouter,
+    linkEventsRouter,
+    servicesRouter,
+    tokensRouter,
+    transactionsRouter,
+    usersRouter,
+} = require ( "./server/routes")
 
 const APP_PORT = process.env.APP_PORT || 8000;
 
@@ -111,5 +116,7 @@ app.use("/api/transactions", transactionsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/institutions", institutionRouter);
 app.use("/api/services", servicesRouter)
+app.use("/api/budget", budgetRouter);
+app.use("/api/categories", categoriesRouter);
 
 app.use(errorHandler);
