@@ -124,9 +124,9 @@ router.get("/accounts/:accountId/transactions", async (request, response, next) 
     }
 });
 
-router.get("/items/:itemId/transactions", async (request, response, next) => {
+router.get("/items/:itemId/transactions/:page", async (request, response, next) => {
     try {
-        const { itemId } = request.params;
+        const { itemId, page } = request.params;
         const transactions = await getTransactionsByItemIdSortedByCategory(itemId);
         response.json(transactions);
     } catch (err) {
