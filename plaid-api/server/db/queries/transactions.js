@@ -97,7 +97,7 @@ const createOrUpdateTransactions = async (transactions) => {
         const {
             account_id: plaidAccountId,
             transaction_id: plaidTransactionId,
-            category: categories,
+            personal_finance_category: categories,
             name: transactionName,
             amount,
             iso_currency_code: isoCurrencyCode,
@@ -107,8 +107,7 @@ const createOrUpdateTransactions = async (transactions) => {
         const { id: accountId } = await getAccountsByPlaidAccountId(
             plaidAccountId
         );
-        console.log(categories);
-        const [category, subcategory] = categories;
+        const {primary, detailed } = categories;
         try {
             const query = {
                 text: `
@@ -141,8 +140,8 @@ const createOrUpdateTransactions = async (transactions) => {
                 values: [
                     accountId,
                     plaidTransactionId,
-                    category,
-                    subcategory,
+                    primary,
+                    detailed,
                     transactionName,
                     amount,
                     isoCurrencyCode,
@@ -233,7 +232,7 @@ const getTransactionsByUserIdSortedByCategory = async (
     return transactions;
 };
 
-const getTransactionsByItemIdSortedByCategory = async (itemId) => {
+const getTransactionsByItemIdSortedByCategory = async (itemId, page = 1) => {
     const query = {
         text: `
             SELECT t.id, t.plaid_account_id, category_type, 
@@ -262,6 +261,7 @@ const getTransactionsByAccountIdSortedByCategory = async (accountId) => {
             WHERE account_id = $1
             AND is_removed = false
             AND is_pending = false
+            AND category_type NOT IN ('LOAN_PAYMENTS', 'TRANSFER_IN', 'TRANSFER_OUT', 'INCOME')
             ORDER BY category_type, 4, transaction_date;
         `,
         values: [accountId],
@@ -282,6 +282,7 @@ const getSumOfCategoryTransactionsByUserId = async (
             WHERE user_id = $1
             AND is_removed = false
             AND is_pending = false
+            AND category_type NOT IN ('LOAN_PAYMENTS', 'TRANSFER_IN', 'TRANSFER_OUT', 'INCOME')
             ${
                 useDateFilter
                     ? `AND transaction_date > (current_date - interval '1 ${dateFilterInterval}')`
@@ -304,6 +305,7 @@ const getSumOfCategoryTransactionsByItemId = async (itemId) => {
             WHERE t.item_id = $1
             AND is_removed = false
             AND is_pending = false
+            AND category_type NOT IN ('LOAN_PAYMENTS', 'TRANSFER_IN', 'TRANSFER_OUT', 'INCOME')
             GROUP BY category_type, category;
         `,
         values: [itemId],
@@ -321,6 +323,7 @@ const getSumOfCategoryTransactionsByAccountId = async (accountId) => {
             WHERE account_id = $1
             AND is_removed = false
             AND is_pending = false
+            AND category_type NOT IN ('LOAN_PAYMENTS', 'TRANSFER_IN', 'TRANSFER_OUT', 'INCOME')
             GROUP BY category_type, category;
         `,
         values: [accountId],
@@ -338,7 +341,7 @@ const getTopVendorNamesByUserId = async (userId, limit = 5) => {
             AND is_removed = false
             AND is_pending = false
             AND transaction_date > (current_date - interval '1 month') 
-            AND category_type NOT IN ('LOAN_PAYMENTS', 'RENT_AND_UTILITIES', 'TRANSFER_IN', 'TRANSFER_OUT')
+            AND category_type NOT IN ('LOAN_PAYMENTS', 'RENT_AND_UTILITIES', 'TRANSFER_IN', 'TRANSFER_OUT', 'LOAN_PAYMENTS', 'BANK_FEES', 'INCOME')
             GROUP BY merchant_name
             ORDER BY sum desc, merchant_name
             LIMIT $2;
