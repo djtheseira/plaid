@@ -65,8 +65,8 @@ const syncTransactions = async (itemId) => {
         transaction_cursor: transactionCursor,
         user_id: userId
     } = await getItemById(itemId);
-    console.log("accessToken: ", accessToken);
-    console.log("transactionCursor: ", transactionCursor);
+    // console.log("accessToken: ", accessToken);
+    // console.log("transactionCursor: ", transactionCursor);
 
     const summary = { added: 0, removed: 0, modified: 0 };
     const allData = await fetchNewSyncData(accessToken, transactionCursor);
