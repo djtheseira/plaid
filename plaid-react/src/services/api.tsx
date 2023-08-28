@@ -46,12 +46,19 @@ export const getAccountBalancesByUserId = (userId: number) => api.get(`/users/${
 // transactions
 // THIS DOESNT EXIST! !!!! !!!! !!!
 export const getTransactionsByAccount = (accountId: number) => api.get(`/banks/accounts/${accountId}/transactions`);
-export const getTransactionsByItem = (itemId: number) => api.get(`/banks/items/${itemId}/transactions`);
+export const getTransactionsByItem = (itemId: number, page?: number) => api.get(`/banks/items/${itemId}/transactions/${page}`);
 export const getTransactionsByUser = (userId: number) => api.get(`/users/${userId}/transactions`);
 export const getSumOfTransactionsByUser = (userId: number) => api.get(`/users/${userId}/sum_of_transactions`);
 export const getMonthlySumOfTransactionsByUser = (userId: number) => api.get(`/users/${userId}/sum_of_transactions/monthly`);
 export const getYearlySumOfTransactionsByUser = (userId: number) => api.get(`/users/${userId}/sum_of_transactions/yearly`);
 export const getTopVendorsByUser = (userId: number, limit?:number|-1) => api.get(`/users/${userId}/top_vendors/${limit}`);
+
+export const getBudgetCategoryTypes = () => api.get("/categories/types");
+export const getBudgetCategories = () => api.get("/categories/");
+export const getBudgetsByUser = (userId: number) => api.get(`/budget/${userId}`);
+export const getBudgetSumComparisons = (userId: number) => api.get(`/budget/get_budget_sum_comparison/${userId}`);
+export const setBudgetByUserCategoryTypeId = (userId: number, categoryId: number, amount: number) => api.post(`/budget`, {userId, categoryId, amount});
+export const removeBudgetByUserIdCategoryId = (userId: number, categoryId: number) => api.delete(`/budget/${userId}/${categoryId}`);
 
 // institutions
 export const getInstitutionById = (institutionId: string) => api.get(`/institutions/${institutionId}`);
