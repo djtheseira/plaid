@@ -97,7 +97,7 @@ export default function SpendingInsights(props: Props) {
                                 <div className="spending-insights-top-vendor-container d-flex flex-column flex-fill justify-content-between">
                                     {props.topVendors.map((vendor:VendorType, index:number) => {
                                         return <div key={`top-vender-${index}`} className="d-flex flex-row justify-content-between">
-                                            <div >{vendor.merchant_name}</div>
+                                            <div className="text-start" >{vendor.merchant_name}</div>
                                             <div >${vendor.sum}</div>
                                         </div>
                                     })}
