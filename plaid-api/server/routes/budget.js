@@ -36,7 +36,17 @@ router.delete("/:userId/:categoryId", async (request, response, next) => {
 router.get("/get_budget_sum_comparison/:userId", async (request, response, next) => {
     try {
         const { userId } = request.params;
-        const budgetSums = await getBudgetActualSumComparisons(userId);
+        const budgetSums = await getBudgetActualSumComparisons(userId, false);
+        response.json(budgetSums);
+    } catch(err) {
+        next(err);
+    }
+});
+
+router.get("/get_budget_sum_comparison_yearly/:userId", async (request, response, next) => {
+    try {
+        const { userId } = request.params;
+        const budgetSums = await getBudgetActualSumComparisons(userId, true);
         response.json(budgetSums);
     } catch(err) {
         next(err);

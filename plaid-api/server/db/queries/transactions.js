@@ -207,14 +207,40 @@ const getTransactionByTransactionId = async (transactionId) => {
 
 const getTransactionsByUserIdSortedByCategory = async (
     userId,
+    month, 
+    year,
+    offset = 0,
+    limit = 100,
+) => {
+    const query = {
+        text: `
+            SELECT t.id, t.plaid_account_id, t.category_type, t.user_id, t.plaid_item_id,
+                replace(t.category, t.category_type || '_', '') as "category",
+                t.merchant_name, t.amount, t.transaction_date, t.institution_name
+            FROM transactions t
+            JOIN accounts a ON a.id = t.account_id
+            WHERE t.user_id = $1
+            AND t.is_removed = false
+            AND t.is_pending = false
+            AND t.transaction_date >= date_trunc('month', current_date)
+            AND t.transaction_date < date_trunc('month', current_date + interval '1 month')
+            ORDER BY 6 asc, t.transaction_date desc
+            OFFSET $2 LIMIT $3;
+        `,
+        values: [userId, offset, limit],
+    };
+    const { rows: transactions } = await db.query(query);
+    return transactions;
+};
+
+const getTransactionsCountByUserId = async (
+    userId,
     useDateFilter,
     dateFilterInterval
 ) => {
     const query = {
         text: `
-            SELECT id, plaid_account_id, category_type, 
-                replace(category, category_type || '_', '') as "category",
-                merchant_name, transaction_date
+            SELECT COUNT(*)
             FROM transactions
             WHERE user_id = $1
             AND is_removed = false
@@ -223,21 +249,20 @@ const getTransactionsByUserIdSortedByCategory = async (
                 useDateFilter
                     ? `AND transaction_date > (current_date - interval '1 ${dateFilterInterval}')`
                     : ""
-            }
-            ORDER BY category_type, 4, transaction_date;
+            };
         `,
         values: [userId],
     };
     const { rows: transactions } = await db.query(query);
-    return transactions;
+    return transactions[0];
 };
 
 const getTransactionsByItemIdSortedByCategory = async (itemId, page = 1) => {
     const query = {
         text: `
-            SELECT t.id, t.plaid_account_id, category_type, 
+            SELECT t.id, t.plaid_account_id, category_type, user_id, plaid_item_id, 
                 replace(category, category_type || '_', '') as "category",
-                merchant_name, transaction_date
+                merchant_name, amount, transaction_date, t.institution_name
             FROM transactions t
             WHERE t.item_id = $1
             AND is_removed = false
@@ -352,7 +377,18 @@ const getTopVendorNamesByUserId = async (userId, limit = 5) => {
     return transactions;
 };
 
+const test = async () => {
+    const query = {
+        text: `select * from transactions where user_id = $1 LIMIT 5;`,
+        values: [1]
+    }
+
+    const data = await db.query(query);
+    return data;
+}
+
 module.exports = {
+    test,
     createTransaction,
     updateTransaction,
     createOrUpdateTransactions,
@@ -360,6 +396,7 @@ module.exports = {
     getTransactionByTransactionId,
     getTransactionsByAccountId,
     getTransactionsByUserIdSortedByCategory,
+    getTransactionsCountByUserId,
     getTransactionsByAccountIdSortedByCategory,
     getTransactionsByItemIdSortedByCategory,
     getSumOfCategoryTransactionsByUserId,

@@ -14,6 +14,7 @@ const {
     getTransactionsByUserIdSortedByCategory,
     getSumOfCategoryTransactionsByUserId,
     getTopVendorNamesByUserId,
+    getTransactionsCountByUserId,
 } = require("../db/queries");
 const { plaidClient } = require("../../plaid");
 const { getLoggedInUserId, sanitizeUsers } = require("../../util");
@@ -208,8 +209,17 @@ router.get("/:userId/items", async (request, response, next) => {
 router.get("/:userId/transactions", async (request, response, next) => {
     try {
         const { userId } = request.params;
-        const userTransactions = await getTransactionsByUserIdSortedByCategory(userId, true, 'month');
-        response.json(userTransactions);
+        const { offset = 0, limit = 100, total = 0, month = 1, year = 2023 } = request.query;
+        const userTransactions = await getTransactionsByUserIdSortedByCategory(userId, month, year, offset, limit);
+        const transactions = {
+            transactions: userTransactions,
+            transactionCount: 0,
+        }
+        if (Number(total) === 0 && !isNaN(total)) {
+            const transactionCount = await getTransactionsCountByUserId(userId, true, 'month');
+            transactions.transactionCount = Number(transactionCount.count);
+        }
+        response.json(transactions);
     } catch (err) {
         next(err);
     }

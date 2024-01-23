@@ -20,7 +20,6 @@ router.post("/generate_link_token", async (request, response, next) => {
             const { id: userId } = await getUserByUserId(
                 getLoggedInUserId(request)
             );
-            console.log("userid:", userId);
             
             const configs = {
                 user: {
@@ -84,9 +83,9 @@ router.post("/exchange_public_token", async (request, response, next) => {
         );
         await retrieveBankAccountNames(accessToken, item.id);
 
-        await updateTransactions(plaidItemId).then(() => {
+        await updateTransactions(plaidItemId).then((data) => {
             // Notify frontend to reflect any transactions changes.
-            console.log("update trans done");
+            console.log("update trans done", data);
             request.io.emit("NEW_TRANSACTIONS_DATA", { itemId: item.id });
         });
 

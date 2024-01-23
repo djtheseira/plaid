@@ -23,7 +23,6 @@ const deleteAllUsers = async(userId) => {
         text: "DELETE FROM users_table;"
     };
     const { rowCount } = await db.query(query);
-    console.log("rows: ", rowCount);
     return rowCount;
 };
 

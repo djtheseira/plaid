@@ -43,7 +43,6 @@ const fetchTransactionUpdates = async (plaidItemId) => {
             const request = {
                 access_token: accessToken,
                 cursor: cursor,
-                count: batchSize,
                 options: {
                     include_personal_finance_category: true,
                 },
@@ -57,6 +56,7 @@ const fetchTransactionUpdates = async (plaidItemId) => {
             hasMore = data.has_more;
             // Update cursor to the next cursor
             cursor = data.next_cursor;
+            console.log("data hasmore: ", data.has_more);
         }
     } catch (err) {
         console.error(`Error fetching transactions: ${err.message}`);

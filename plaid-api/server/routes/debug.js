@@ -1,5 +1,6 @@
 const express = require("express");
 const { getItemsAndAccessTokensForUser } = require("../db/queries");
+const { test } = require("../db/queries/transactions");
 const { plaidClient } = require("../../plaid");
 const { SandboxItemFireWebhookRequestWebhookCodeEnum, WebhookType} = require("plaid");
 const router = express.Router();
@@ -16,6 +17,7 @@ router.post("/generate_webhook/:userId", async (req, res, next) => {
         const itemsAndTokens = await getItemsAndAccessTokensForUser(userId);
         const randomItem = itemsAndTokens[Math.floor(Math.random() * itemsAndTokens.length)];
         const accessToken = randomItem.plaid_access_token;
+        plaidClient.itemWebhookUpdate 
         const result = await plaidClient.sandboxItemFireWebhook({
             webhook_code:
                 SandboxItemFireWebhookRequestWebhookCodeEnum.SyncUpdatesAvailable,
@@ -26,5 +28,13 @@ router.post("/generate_webhook/:userId", async (req, res, next) => {
         next(error);
     }
 });
+
+router.get("/test", async(req, res, next) => {
+    try {
+        res.json(await test());
+    } catch (err) {
+        next(err);
+    }
+})
 
 module.exports = router;

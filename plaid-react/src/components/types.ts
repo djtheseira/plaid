@@ -47,6 +47,7 @@ export interface AccountType {
     item_id: number;
     user_id: number;
     plaid_item_id: string;
+    institution_name: string;
     plaid_account_id: string;
     name: string;
     mask: string;
@@ -88,6 +89,8 @@ export interface TransactionType {
     transaction_date: string;
     created_at: string;
     updated_at: string;
+    institution_name?: string;
+    account_name?: string;
 }
 
 export interface TransactionSumType {

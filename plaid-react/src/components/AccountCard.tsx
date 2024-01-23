@@ -35,14 +35,14 @@ export default function AccountCard(props: Props) {
                     <p className="account-card__details__account-name mb-0">{name}</p>
                     <div className="account-card__details__type-amount fs-xxs" >
                         <p className="account-card__details__type-amount__type d-inline-block mb-0" >{humanReadableCategory(subtype)}</p>
-                        <p className="account-card__details__type-amount__amount d-inline-block mb-0" >{currencyFilter(available_balance || current_balance)}</p>
+                        <p className="account-card__details__type-amount__amount d-inline-block mb-0" >{currencyFilter(current_balance || available_balance )}</p>
                     </div>
                 </div>
-                <div className="account-card__view-transactions btn-container" >
+                {/* <div className="account-card__view-transactions btn-container" >
                     <Button className="py-2" onClick={ showHideTransactionButtonHandler } >{showTransactions && transactions.length > 0 ? "Hide" : "Show" } monthly transactions</Button>
-                </div>
+                </div> */}
             </div>
-            { showTransactions && transactions.length > 0 ? 
+            {/* { showTransactions && transactions.length > 0 ? 
                 <div className="account-card__transactions">
                     <div className="transaction-card" >
                             <div className="row text-decoration-underline">
@@ -63,7 +63,7 @@ export default function AccountCard(props: Props) {
                         </div>
                     ))}
                 </div> : null
-            }
+            } */}
         </div>
     )
 } 

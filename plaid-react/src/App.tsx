@@ -3,7 +3,7 @@ import { Route, Routes, useRoutes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import { BudgetPage, UserPage, Landing, OAuthLink, Sockets, InfoPage } from "./components";
+import { BudgetSettingsPage, BudgetPage, UserPage, Landing, OAuthLink, Sockets, InfoPage, TransactionsPage } from "./components";
 import { AccountsProvider } from "./services/accounts";
 import { InstitutionsProvider } from "./services/institutions";
 import { ItemsProvider } from "./services/items";
@@ -31,7 +31,9 @@ function App() {
         element: <UserPage />,
         children: [
             {path: ":userId", element: <InfoPage />},
-            {path: ":userId/budget", element: <BudgetPage />}
+            {path: ":userId/budget", element: <BudgetPage />},
+            {path: ":userId/budget-settings", element: <BudgetSettingsPage />},
+            {path: ":userId/transactions", element: <TransactionsPage />}
         ],
     }
 

@@ -1,17 +1,19 @@
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
 import { AccountType, ItemType } from "./types";
 import { Button } from "react-bootstrap";
 import { useAccounts, useInstitutions, useItems, useTransactions } from "../services";
 import { Institution } from "plaid";
 import { AccountCard } from ".";
+import { currencyFilter } from "../util";
 
 interface Props {
-    item: ItemType,
-    userId: number
+    item: ItemType;
+    userId: number;
 }
 
 export default function ItemCard(props:Props) {
     const [accounts, setAccounts] = useState<AccountType[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [institution, setInstitution] = useState<Institution>({
         logo: '',
         name: '',
@@ -32,14 +34,26 @@ export default function ItemCard(props:Props) {
         formatLogoSrc
     } = useInstitutions();
 
-    const { id, plaid_institution_id, status } = props.item;
+    const { id, plaid_institution_id } = props.item;
     const userId = props.userId;
 
     const removeBankConnection = () => {
-        deleteItemById(id, userId);
-        deleteAccountsByItemId(id);
-        deleteTransactionsByItemId(id);
+        setIsLoading(true);
     }
+
+    useEffect(() => {
+        if (!isLoading) return;
+        const runDeleteCommands = async () => {
+            if (!isLoading) return;
+            await deleteItemById(id, userId);
+            deleteAccountsByItemId(id);
+            deleteTransactionsByItemId(id);
+            setIsLoading(false);
+        };
+
+        runDeleteCommands();
+
+    }, [deleteAccountsByItemId, deleteItemById, deleteTransactionsByItemId, id, isLoading, userId])
 
     useEffect(() => {
         const itemAccounts: AccountType[] = accountsByItem[id];
@@ -59,6 +73,15 @@ export default function ItemCard(props:Props) {
         setShowAccounts(!showAccounts);
     };
 
+    const calculateAccountTotals = useCallback(() => {
+        let total = 0;
+        if (accounts != null && accounts.length > 0) {
+            accounts.forEach((account:AccountType) => {total += account.current_balance});
+            console.log("total: ", total);
+        }
+        return currencyFilter(total);
+    }, [accounts]);
+
     return (
         <div className={`item-card ${showAccounts && accounts.length > 0 ? "expanded" : ""}`} >
             <div role="button" onClick={onItemCardClick}>
@@ -70,6 +93,12 @@ export default function ItemCard(props:Props) {
                             alt={institution && institution.name}
                         />
                         <p className="mb-1 d-inline-block">{props.item.institution_name}</p>
+                        { accounts.length > 0 ? 
+                            <span className="ms-3 item-accounts-total">
+                            { calculateAccountTotals() }
+                            </span>
+                            : null
+                        }
                     </div>
                     <div className="position-absolute start-50 item-card-arrow">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className={`bi bi-chevron-down`} viewBox="0 0 16 16">
@@ -78,7 +107,7 @@ export default function ItemCard(props:Props) {
                     </div>
                     <div className="item-btn-menu">
                         <div className="btn-container" >
-                            <Button onClick={removeBankConnection} className="btn-remove" >Remove</Button>
+                            <Button onClick={removeBankConnection} className="btn-remove" disabled={isLoading} >Remove</Button>
                         </div>
                         <div className="update-user-login-container"></div>
                     </div>

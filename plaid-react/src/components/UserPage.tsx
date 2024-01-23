@@ -29,6 +29,12 @@ export default function UserPage() {
                     <li className="nav-item">
                         <NavLink className={"nav-link"} to={`${userId}/budget`} >Budget</NavLink>
                     </li>
+                    <li className="nav-item">
+                        <NavLink className={"nav-link"} to={`${userId}/budget-settings`} >Budget Settings</NavLink>
+                    </li>
+                    <li className="nav-item">
+                        <NavLink className={"nav-link"} to={`${userId}/transactions`} >Transactions</NavLink>
+                    </li>
                 </ul>
             </div>
 

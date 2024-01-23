@@ -26,6 +26,7 @@ const handleTransactionsWebhook = async (requestBody, io) => {
     };
 
     switch (webhookCode) {
+        case "HISTORICAL_UPDATE":
         case "SYNC_UPDATES_AVAILABLE": {
             // Fired when new transactions data becomes available.
             const { addedCount, modifiedCount, removedCount } =
@@ -39,7 +40,6 @@ const handleTransactionsWebhook = async (requestBody, io) => {
         }
         case "DEFAULT_UPDATE":
         case "INITIAL_UPDATE":
-        case "HISTORICAL_UPDATE":
             /* ignore - not needed if using sync endpoint + webhook */
             break;
         default:

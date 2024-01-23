@@ -21,7 +21,10 @@ import {
 import { Dictionary } from 'lodash';
 
 interface TransactionsState {
-    [transactionId: number]: TransactionType;
+    transactions: {
+        [transactionId: number]: TransactionType;
+    };
+    transactionCount: number;
 }
 
 interface TransactionSumState {
@@ -30,16 +33,32 @@ interface TransactionSumState {
     category_type: string;
 }
 
+// interface TransactionsState {
+//     transactionState: TransactionState;
+//     dispatch: Dispatch<TransactionsAction>;
+//     transactionsByAccount: Dictionary<any>;
+//     getTransactionsByAccount: (accountId: number, refresh?: boolean) => void;
+//     deleteTransactionsByItemId: (itemId: number) => void;
+//     deleteTransactionsByUserId: (userId: number) => void;
+//     transactionsByUser: Dictionary<any>;
+//     getTransactionsByUser: (userId: number) => void;
+//     transactionsByItem: Dictionary<any>;
+//     getSumOfTransactionsByUser: (userId: number, dateFilterType:number) => void;
+//     transactionSums?: Dictionary<any> | [];
+//     transactions: Dictionary<any>;
+//     transactionCount: number;
+// }
+
 const initialState = {};
 
 type TransactionsAction =
     | {
         type: "SUCCESSFUL_GET";
-        payload: TransactionType[];
+        payload: TransactionsState;
     }
     | {
         type: "SUCCESSFUL_GET_SUM";
-        payload: TransactionSumType[];
+        payload: TransactionsState;
     }
     | {
         type: "DELETE_BY_ITEM";
@@ -62,6 +81,7 @@ interface TransactionsContextShape extends TransactionsState, TransactionSumStat
     getSumOfTransactionsByUser: (userId: number, dateFilterType:number) => void;
     transactionSums?: Dictionary<any> | [];
     transactions: Dictionary<any>;
+    transactionCount: number;
 }
 
 const TransactionsContext = createContext<TransactionsContextShape>(
@@ -82,6 +102,8 @@ export function TransactionProvider(props: any) {
     }>({
         byAccount: {}
     });
+
+    const transactionCount = useRef<number>(0);
 
     /**
      * @desc Requests all Transactions that belong to an individual Account.
@@ -109,6 +131,8 @@ export function TransactionProvider(props: any) {
      */
     const getTransactionsByUser = useCallback(async (userId: number) => {
         const { data: payload } = await apiGetTransactionsByUser(userId);
+        transactionCount.current = payload.transactionCount;
+        console.log("payload: ", payload);
         dispatch({ type: "SUCCESSFUL_GET", payload: payload });
     }, []);
 
@@ -134,7 +158,7 @@ export function TransactionProvider(props: any) {
      */
     const value = useMemo(() => {
         const allTransactions = Object.values(transactionsById);
-
+        console.log("transactionsById: ", transactionsById);
         return {
             dispatch,
             allTransactions,
@@ -166,12 +190,14 @@ export function TransactionProvider(props: any) {
 function reducer(state: TransactionsState, action: TransactionsAction | any) {
     switch (action.type) {
         case 'SUCCESSFUL_GET':
-            if (!action.payload.length) {
-                return state;
+            console.log("action: ", action);
+            if (!action.payload.transactions.length) {
+                return state
             }
             return {
                 ...state,
-                ...keyBy(action.payload, 'id')
+                ...keyBy(action.payload.transactions, 'id'),
+                transactionCount: action.payload.transactionCount,
             };
         case 'SUCCESSFUL_GET_SUM':
             if (!action.payload.length) {
@@ -182,15 +208,10 @@ function reducer(state: TransactionsState, action: TransactionsAction | any) {
                 transactionSums: action.payload
             };
         case 'DELETE_BY_ITEM':
-            return omitBy(
-                state,
-                transaction => transaction.item_id === action.payload
-            );
+            // if (state)
+            return 0;
         case 'DELETE_BY_USER':
-            return omitBy(
-                state,
-                transaction => transaction.user_id === action.payload
-            );
+            return action.payload;
         default:
             console.warn('unknown action: ', action.type, action.payload);
             return state;

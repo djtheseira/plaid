@@ -20,6 +20,7 @@ interface Props {
     userId: number;
     itemId?: number | null;
     children?: React.ReactNode;
+    updateLoadState?: (isLoading: boolean) => void;
 };
 
 export default function LaunchLink(props: Props) {
@@ -43,6 +44,9 @@ export default function LaunchLink(props: Props) {
         resetError();
         deleteLinkToken(props.userId, null);
         navigate(`/user/${props.userId}`);
+        if (props.updateLoadState) {
+            props.updateLoadState(false);
+        }
     };
 
     const onExit = async (
@@ -56,6 +60,9 @@ export default function LaunchLink(props: Props) {
         if (error != null) {
             setError(error.error_code, error.display_message || error.error_message);
         }
+        if (props.updateLoadState) {
+            props.updateLoadState(false);
+        }
     };
 
     const onEvent = async (
@@ -66,6 +73,9 @@ export default function LaunchLink(props: Props) {
             setError(metadata.error_code, ' ');
         }
         logEvent(eventName, metadata);
+        if (props.updateLoadState) {
+            props.updateLoadState(false);
+        }
     };
 
     const config: PlaidLinkOptionsWithLinkToken = {

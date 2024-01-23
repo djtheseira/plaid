@@ -84,8 +84,6 @@ const prettyPrintResponse = response => {
 };
 
 const getLoggedInUserId = function (req) {
-    console.log("req method: ", req.method);
-    console.log("query or body: ", req.method == "GET" ? req.query : req.body);
     return req.method == "GET" ? req.query.userId : req.body.userId;
 };
 

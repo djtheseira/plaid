@@ -118,7 +118,7 @@ router.get("/accounts/:accountId/transactions", async (request, response, next) 
     try {
         const { accountId } = request.params;
         const transactions = await getTransactionsByAccountId(accountId);
-        response.json(transactions);
+        response.json({transactions: transactions,});
     } catch (err) {
         next(err);
     }
@@ -128,7 +128,7 @@ router.get("/items/:itemId/transactions/:page", async (request, response, next) 
     try {
         const { itemId, page } = request.params;
         const transactions = await getTransactionsByItemIdSortedByCategory(itemId);
-        response.json(transactions);
+        response.json({transactions: transactions});
     } catch (err) {
         next(err);
     }

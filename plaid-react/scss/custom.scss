@@ -46,6 +46,26 @@ $h6-font-size: 2.5rem;
 
 @import "../node_modules/bootstrap/scss/utilities/api";
 
+.fs-xxs {
+    font-size: 1rem;
+}
+
+.fs-xs {
+    font-size: 1.125rem;
+}
+
+.fs-sm {
+    font-size: 1.25rem;
+}
+
+.fs-md {
+    font-size: 1.375rem;
+}
+
+.fs-lg {
+    font-size: 1.75rem;
+}
+
 .btn-primary {
     background-color: #000000;
     border: none;
@@ -194,10 +214,27 @@ body {
 }
 
 .actual-budget-container {
-    .budget-sum-container .budget-sum-category-type {
-        border: 1px solid #ededed;
-        border-width: 0 0 1px 0;
-        padding: 1rem 0;
+    .budget-sum-container {
+        &:not(.expanded) .item-card-arrow svg {
+            transform: rotate(-90deg);
+        }
+        .budget-sum-category-type {
+            border: 1px solid #ededed;
+            border-width: 0 1px 1px 1px;
+            padding: 1rem 2rem;
+        }
+
+        .budget-sum-category-list {
+            max-height: 45vh;
+            overflow-y: auto;
+            border: solid #ededed;
+            border-width: 0 0 1px 0;
+            & .row:last-child {
+                .actual-budget-container-cell {
+                    border-width: 0 1px;
+                }
+            }
+        }
     }
     .actual-budget-container-header,
     .actual-budget-container-cell {
@@ -217,6 +254,37 @@ body {
         border-width: 0px 1px 1px 0;
         &:first-child {
             border-width: 0px 1px 1px 1px;
+        }
+    }
+}
+
+#transactions-container {
+    max-height: 75vh;
+
+    #transactions-list {
+        border: 1px solid #ededed;
+    }
+
+    .rdt_Table {
+        .rdt_TableCol,
+        .rdt_TableCell {
+            font-size: 1rem;
+        }
+        .rdt_TableHeadRow {
+            .rdt_TableCol {
+                justify-content: center;
+            }
+            
+        }
+        .rdt_TableRow {
+            div[data-column-id="2"],
+            div[data-column-id="3"],
+            div[data-column-id="4"] {
+                justify-content: center;
+            }
+            div[data-column-id="5"] {
+                justify-content: end;
+            }
         }
     }
 }

@@ -32,25 +32,26 @@ const AddUserForm = (props: Props) => {
                     <div className="add-user__col1 mb-3" >
                         <h5>Add new user</h5>
                     </div>
-                    <div className="d-flex flex-row row add_user__form-input">
+                    <div className="d-flex flex-row row add_user__form-input align-items-center">
                         <div className="add-user__col2 my-3 col-6" >
-                            <label className="me-3" htmlFor="new-username-input" >User Name: </label>
                             <FormControl as="input" id="new-username-input" name="username" 
                                 value={username} onChange={e => setUsername(e.target.value)}
                                 placeholder="New user name"
                             />
                         </div>
-                        <div className="add-user__button_group d-flex gap-3 my-3 col-6" >
-                            <Button className="add-user__button" type="submit">
-                                Add User
-                            </Button>
-                            <Button 
-                                className="add-user__button"
-                                type="button"
-                                onClick={props.hideForm}
-                            >
-                                Cancel
-                            </Button>
+                        <div className="col-6">
+                            <div className="add-user__button_group d-flex gap-3" >
+                                <Button className="add-user__button" type="submit">
+                                    Add User
+                                </Button>
+                                <Button 
+                                    className="add-user__button"
+                                    type="button"
+                                    onClick={props.hideForm}
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
